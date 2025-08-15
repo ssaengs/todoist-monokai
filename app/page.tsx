@@ -172,7 +172,7 @@ export default function Home() {
                 className="space-y-2 mt-6"
               >
                 {todos.map((todo, index) => (
-                  <Draggable key={todo._id} draggableId={todo._id} index={index}>
+                  <Draggable key={todo._id || `temp-${index}`} draggableId={todo._id || `temp-${index}`} index={index}>
                     {(provided) => (
                       <div
                         ref={provided.innerRef}
@@ -183,7 +183,7 @@ export default function Home() {
                           todo={todo}
                           onUpdate={updateTodo}
                           onDelete={deleteTodo}
-                          onClick={() => handleTodoClick(todo._id)}
+                          onClick={() => handleTodoClick(todo._id || '')}
                         />
                       </div>
                     )}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { GripVertical, Trash2, Edit3, Check, X, Star } from 'lucide-react';
+import { Check, X, Star, Edit, Trash2, GripVertical, Image, Plus } from 'lucide-react';
 import { ITodo } from '@/models/Todo';
 
 interface TodoItemProps {
@@ -12,7 +12,6 @@ interface TodoItemProps {
 }
 
 export default function TodoItem({ todo, onUpdate, onDelete, onClick }: TodoItemProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(todo.title);
   const [editNotes, setEditNotes] = useState(todo.notes);
@@ -26,15 +25,21 @@ export default function TodoItem({ todo, onUpdate, onDelete, onClick }: TodoItem
   };
 
   const handleToggleComplete = () => {
-    onUpdate(todo._id, { completed: !todo.completed });
+    if (todo._id) {
+      onUpdate(todo._id, { completed: !todo.completed });
+    }
   };
 
   const handlePriorityChange = (newPriority: number) => {
-    onUpdate(todo._id, { priority: newPriority });
+    if (todo._id) {
+      onUpdate(todo._id, { priority: newPriority });
+    }
   };
 
   const handleSaveEdit = () => {
-    onUpdate(todo._id, { title: editTitle, notes: editNotes });
+    if (todo._id) {
+      onUpdate(todo._id, { title: editTitle, notes: editNotes });
+    }
     setIsEditing(false);
   };
 
@@ -46,15 +51,23 @@ export default function TodoItem({ todo, onUpdate, onDelete, onClick }: TodoItem
 
   const handleAddMedia = () => {
     const url = prompt('Enter media URL (image, video, etc.):');
-    if (url) {
+    if (url && todo._id) {
       const newMedia = [...todo.media, url];
       onUpdate(todo._id, { media: newMedia });
     }
   };
 
   const handleRemoveMedia = (index: number) => {
-    const newMedia = todo.media.filter((_, i) => i !== index);
-    onUpdate(todo._id, { media: newMedia });
+    if (todo._id) {
+      const newMedia = todo.media.filter((_, i) => i !== index);
+      onUpdate(todo._id, { media: newMedia });
+    }
+  };
+
+  const handleDelete = () => {
+    if (todo._id) {
+      onDelete(todo._id);
+    }
   };
 
   return (
@@ -122,134 +135,87 @@ export default function TodoItem({ todo, onUpdate, onDelete, onClick }: TodoItem
             <div className="flex items-center space-x-1">
               <Star 
                 size={16} 
-                className={`${
-                  todo.priority >= 4 ? 'text-yellow-400 fill-current' : 'text-gray-400'
-                }`} 
+                className={`${todo.priority >= 1 ? 'text-yellow-400' : 'text-gray-600'}`} 
               />
-              <span className="text-sm font-medium">{todo.priority}</span>
+              <Star 
+                size={16} 
+                className={`${todo.priority >= 2 ? 'text-yellow-400' : 'text-gray-600'}`} 
+              />
+              <Star 
+                size={16} 
+                className={`${todo.priority >= 3 ? 'text-yellow-400' : 'text-gray-600'}`} 
+              />
+              <Star 
+                size={16} 
+                className={`${todo.priority >= 4 ? 'text-yellow-400' : 'text-gray-600'}`} 
+              />
+              <Star 
+                size={16} 
+                className={`${todo.priority >= 5 ? 'text-yellow-400' : 'text-gray-600'}`} 
+              />
             </div>
 
-            {/* Complete Checkbox */}
-            <button
-              onClick={handleToggleComplete}
-              className={`w-6 h-6 rounded border-2 flex items-center justify-center transition-colors ${
-                todo.completed 
-                  ? 'bg-green-600 border-green-600 text-white' 
-                  : 'border-gray-500 hover:border-green-500'
-              }`}
-            >
-              {todo.completed && <Check size={14} />}
-            </button>
-
-            {/* Edit Button */}
-            <button
-              onClick={() => setIsEditing(!isEditing)}
-              className="p-1 text-gray-400 hover:text-blue-400 transition-colors"
-            >
-              <Edit3 size={16} />
-            </button>
-
-            {/* Delete Button */}
-            <button
-              onClick={() => onDelete(todo._id)}
-              className="p-1 text-gray-400 hover:text-red-400 transition-colors"
-            >
-              <Trash2 size={16} />
-            </button>
+            {/* Action Buttons */}
+            <div className="flex items-center space-x-1">
+              <button
+                onClick={() => setIsEditing(true)}
+                className="p-1 text-gray-400 hover:text-blue-400 transition-colors"
+                title="Edit"
+              >
+                <Edit size={16} />
+              </button>
+              
+              <button
+                onClick={handleDelete}
+                className="p-1 text-gray-400 hover:text-red-400 transition-colors"
+                title="Delete"
+              >
+                <Trash2 size={16} />
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Expanded Details */}
-        {isExpanded && !isEditing && (
-          <div className="mt-4 pt-4 border-t border-gray-600 space-y-4">
-            {/* Priority Selector */}
-            <div>
-              <label className="block text-sm font-medium text-gray-200 mb-2">
-                Priority Level
-              </label>
-              <div className="flex space-x-2">
-                {[1, 2, 3, 4, 5].map((level) => (
+        {/* Media Section */}
+        {todo.media.length > 0 && (
+          <div className="mt-3 pt-3 border-t border-gray-700">
+            <div className="flex items-center space-x-2 mb-2">
+              <Image size={16} className="text-gray-400" />
+              <span className="text-sm text-gray-400">Media:</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {todo.media.map((url, index) => (
+                <div key={index} className="relative group">
+                  <img
+                    src={url}
+                    alt={`Media ${index + 1}`}
+                    className="w-16 h-16 object-cover rounded border border-gray-600"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
                   <button
-                    key={level}
-                    onClick={() => handlePriorityChange(level)}
-                    className={`w-8 h-8 rounded-full text-white font-bold transition-all ${
-                      level === 1 ? 'bg-red-500' :
-                      level === 2 ? 'bg-orange-500' :
-                      level === 3 ? 'bg-yellow-500' :
-                      level === 4 ? 'bg-blue-500' :
-                      'bg-green-500'
-                    } ${todo.priority === level ? 'ring-2 ring-offset-2 ring-gray-400' : 'hover:opacity-80'}`}
+                    onClick={() => handleRemoveMedia(index)}
+                    className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
                   >
-                    {level}
+                    ×
                   </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Notes */}
-            <div>
-              <label className="block text-sm font-medium text-gray-200 mb-2">
-                Notes
-              </label>
-              <textarea
-                value={todo.notes}
-                onChange={(e) => onUpdate(todo._id, { notes: e.target.value })}
-                placeholder="Add notes..."
-                className="w-full px-3 py-2 border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none bg-gray-800 text-gray-100 placeholder-gray-400"
-                rows={3}
-              />
-            </div>
-
-            {/* Media */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="block text-sm font-medium text-gray-200">
-                  Media
-                </label>
-                <button
-                  onClick={handleAddMedia}
-                  className="text-sm text-blue-400 hover:text-blue-300"
-                >
-                  + Add Media
-                </button>
-              </div>
-              {todo.media.length > 0 && (
-                <div className="space-y-2">
-                  {todo.media.map((url, index) => (
-                    <div key={index} className="flex items-center space-x-2">
-                      <div className="flex-1 min-w-0">
-                        <a 
-                          href={url} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-sm text-blue-400 hover:text-blue-300 truncate block"
-                        >
-                          {url}
-                        </a>
-                      </div>
-                      <button
-                        onClick={() => handleRemoveMedia(index)}
-                        className="text-red-400 hover:text-red-300"
-                      >
-                        <X size={14} />
-                      </button>
-                    </div>
-                  ))}
                 </div>
-              )}
+              ))}
             </div>
           </div>
         )}
 
-        {/* Expand/Collapse Button */}
-        {!isEditing && (
+        {/* Add Media Button */}
+        <div className="mt-3 pt-3 border-t border-gray-700">
           <button
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="mt-3 text-sm text-gray-400 hover:text-gray-200 transition-colors"
+            onClick={handleAddMedia}
+            className="flex items-center space-x-1 text-sm text-gray-400 hover:text-blue-400 transition-colors"
           >
-            {isExpanded ? 'Show less' : 'Show details'}
+            <Plus size={14} />
+            <span>Add Media</span>
           </button>
-        )}
+        </div>
       </div>
     </div>
   );

@@ -4,7 +4,11 @@ import Todo from '@/models/Todo';
 
 export async function POST(request: NextRequest) {
   try {
-    await dbConnect();
+    const connection = await dbConnect();
+    if (!connection) {
+      return NextResponse.json({ error: 'Database connection not available' }, { status: 503 });
+    }
+    
     const body = await request.json();
     const { todos } = body;
 
@@ -21,6 +25,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ message: 'Todos reordered successfully' });
   } catch (error) {
+    console.error('POST /api/todos/reorder error:', error);
     return NextResponse.json({ error: 'Failed to reorder todos' }, { status: 500 });
   }
 }

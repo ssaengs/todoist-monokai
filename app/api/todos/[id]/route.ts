@@ -7,7 +7,11 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    await dbConnect();
+    const connection = await dbConnect();
+    if (!connection) {
+      return NextResponse.json({ error: 'Database connection not available' }, { status: 503 });
+    }
+    
     const body = await request.json();
     
     const todo = await Todo.findByIdAndUpdate(
@@ -22,6 +26,7 @@ export async function PUT(
 
     return NextResponse.json(todo);
   } catch (error) {
+    console.error('PUT /api/todos/[id] error:', error);
     return NextResponse.json({ error: 'Failed to update todo' }, { status: 500 });
   }
 }
@@ -31,7 +36,11 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    await dbConnect();
+    const connection = await dbConnect();
+    if (!connection) {
+      return NextResponse.json({ error: 'Database connection not available' }, { status: 503 });
+    }
+    
     const todo = await Todo.findByIdAndDelete(params.id);
 
     if (!todo) {
@@ -40,6 +49,7 @@ export async function DELETE(
 
     return NextResponse.json({ message: 'Todo deleted successfully' });
   } catch (error) {
+    console.error('DELETE /api/todos/[id] error:', error);
     return NextResponse.json({ error: 'Failed to delete todo' }, { status: 500 });
   }
 }

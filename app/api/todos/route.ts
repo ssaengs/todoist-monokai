@@ -4,17 +4,26 @@ import Todo from '@/models/Todo';
 
 export async function GET() {
   try {
-    await dbConnect();
+    const connection = await dbConnect();
+    if (!connection) {
+      return NextResponse.json({ error: 'Database connection not available' }, { status: 503 });
+    }
+    
     const todos = await Todo.find({}).sort({ priority: -1, order: 1, createdAt: -1 });
     return NextResponse.json(todos);
   } catch (error) {
+    console.error('GET /api/todos error:', error);
     return NextResponse.json({ error: 'Failed to fetch todos' }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    await dbConnect();
+    const connection = await dbConnect();
+    if (!connection) {
+      return NextResponse.json({ error: 'Database connection not available' }, { status: 503 });
+    }
+    
     const body = await request.json();
     
     const { title, priority = 3 } = body;
@@ -35,6 +44,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(todo, { status: 201 });
   } catch (error) {
+    console.error('POST /api/todos error:', error);
     return NextResponse.json({ error: 'Failed to create todo' }, { status: 500 });
   }
 }
