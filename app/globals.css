@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground: #f8f8f2;
+  --background: #272822;
+  --monokai-bg: #272822;
+  --monokai-fg: #f8f8f2;
+  --monokai-comment: #75715e;
+  --monokai-red: #f92672;
+  --monokai-orange: #fd971f;
+  --monokai-yellow: #e6db74;
+  --monokai-green: #a6e22e;
+  --monokai-blue: #66d9ef;
+  --monokai-purple: #ae81ff;
+  --monokai-cyan: #a1efe4;
+}
+
+body {
+  color: var(--monokai-fg);
+  background: var(--monokai-bg);
+}
+
+/* Monokai priority colors */
+.priority-1 { 
+  @apply bg-gray-800 border-red-500 text-red-400; 
+}
+.priority-2 { 
+  @apply bg-gray-800 border-orange-500 text-orange-400; 
+}
+.priority-3 { 
+  @apply bg-gray-800 border-yellow-500 text-yellow-400; 
+}
+.priority-4 { 
+  @apply bg-gray-800 border-blue-500 text-blue-400; 
+}
+.priority-5 { 
+  @apply bg-gray-800 border-green-500 text-green-400; 
+}
+
+/* Input and form styling for better visibility */
+input, textarea, select {
+  @apply bg-gray-800 border-gray-600 text-gray-100 placeholder-gray-400;
+}
+
+input:focus, textarea:focus, select:focus {
+  @apply border-blue-500 ring-blue-500;
+}
+
+/* Button styling */
+.btn-primary {
+  @apply bg-blue-600 hover:bg-blue-700 text-white;
+}
+
+.btn-secondary {
+  @apply bg-gray-700 hover:bg-gray-600 text-gray-100;
+}
+
+.btn-danger {
+  @apply bg-red-600 hover:bg-red-700 text-white;
+}
+
+.btn-success {
+  @apply bg-green-600 hover:bg-green-700 text-white;
+}
